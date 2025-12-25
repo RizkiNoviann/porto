@@ -27,9 +27,6 @@ export default function Landing() {
           fontSize="3rem"
           mouseConstraintStiffness={0.9}
         />
-        <button className="bg-red-500" onClick={() => navigate("/home")}>
-          klik to continue{" "}
-        </button>
       </div>
     </div>
   );
