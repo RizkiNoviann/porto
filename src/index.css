@@ -7,3 +7,15 @@ body,
   height: 100%;
   margin: 0;
 }
+
+/* ===== HIDE SCROLLBAR ONLY (SAFE) ===== */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE / Edge */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+  width: 0;
+  height: 0;
+}
