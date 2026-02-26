@@ -7,8 +7,7 @@ import RotatingText from "../components/RotatingText";
 import Ribbons from "../components/Ribbons";
 import Carousel from "../components/Carousel";
 import PillNav from "../components/PillNav";
-import ScrollStack, { ScrollStackItem } from "../components/ScrollStack";
-import CardSwap, { Card } from "../components/CardSwap";
+import AnimatedList from "../components/AnimatedList";
 
 // ===== LOGOS =====
 // FE
@@ -36,6 +35,9 @@ import githublogo from "../assets/github.png";
 
 // Video
 import video from "../assets/video.mp4";
+
+//foto
+import nop from "../assets/nop.jpeg";
 
 //cv
 import { motion, AnimatePresence } from "framer-motion";
@@ -128,36 +130,6 @@ export default function Home() {
     },
   ];
 
-  // ===== SCROLL STACK =====
-  const projectStackItems = [
-    {
-      id: "intro-video",
-      title: "Project Overview",
-      type: "video",
-      src: video,
-    },
-    {
-      id: "backend",
-      title: "Back End Stack",
-      description: "Laravel & NestJS untuk API dan sistem backend",
-      images: [laravellogo, nestlogo],
-    },
-    {
-      id: "styling",
-      title: "Styling Stack",
-      description: "Framework styling untuk UI konsisten",
-      images: [tailwindlogo, bosstraplogo],
-    },
-    {
-      id: "database",
-      title: "Data Management",
-      description: "Database & data tools",
-      images: [phpmyadminlogo, mongodblogo],
-    },
-  ];
-
-  const stackColors = ["bg-[#7A1CAC]"];
-
   //download cv
   const handleDownloadCV = () => {
     window.open("/Rizki Novian-resume.pdf", "_blank");
@@ -169,6 +141,88 @@ export default function Home() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const experienceItems = [
+    {
+      year: "2025",
+      title: "IT Development (Oct-Apr)",
+      company: "Airnav Indonesia",
+      description:
+        "I work at AirNav Indonesia in the IT Development division. My role involves developing and maintaining internal applications that are used to support business processes and operational needs within the company. I collaborate with teams to design, build, and improve systems to ensure they are reliable, efficient, and aligned with organizational requirements.",
+    },
+    {
+      year: "2025",
+      title: "Front End Developer (Mar-Aug)",
+      company: "Ijendev.id",
+      description:
+        "I worked at Ijendev.id, a software house specializing in IoT-based website development. During my time there, I developed a web-based inventory and asset borrowing management system using React. I was responsible for building responsive and reusable UI components to support item tracking and borrowing workflows, ensuring a smooth and user-friendly experience. I also collaborated closely with the team to implement features that aligned with business and system requirements.",
+    },
+    {
+      year: "2024",
+      title: "Front End Developer (Feb-Jul)",
+      company: "Dicoding",
+      description:
+        "During my internship, I developed PureLipuran, a tourism website for Penglipuran Village. The website features vacation package booking and user review functionality, built using React and Tailwind CSS. I focused on creating responsive UI components and ensuring a smooth, consistent user experience across various devices.",
+    },
+    {
+      year: "2024",
+      title: "Fullstack Developer",
+      company: "PT Ratu Bio Indonesia",
+      description:
+        "I worked at PT Ratu Bio Indonesia, a manufacturing company specializing in maklon services. In this role, I was involved in developing the company profile website. I built using React and Tailwind CSS as Front End tools and Laravel as Back End tools, implemented payment gateway integration, and developed product review features. I also integrated RESTful APIs to manage dynamic data and support seamless user interactions across the application.",
+    },
+  ];
+
+  const projects = [
+    {
+      title: "Arsipku",
+      image:
+        "https://images.unsplash.com/photo-1612831455543-4e63f1b70d88?q=80&w=1200",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+      tech: ["Nuxt", "Nest", "Tailwind CSS"],
+    },
+    {
+      title: "NavEvent",
+      image:
+        "https://images.unsplash.com/photo-1612831455543-4e63f1b70d88?q=80&w=1200",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+      tech: ["React", "Laravel", "Tailwind CSS"],
+    },
+    {
+      title: "PT Ratu Bio Indonesia",
+      image:
+        "https://images.unsplash.com/photo-1612831455543-4e63f1b70d88?q=80&w=1200",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+      tech: ["Laravel", "MySQL", "Tailwind CSS"],
+    },
+    {
+      title: "Purelipuran",
+      image:
+        "https://images.unsplash.com/photo-1612831455543-4e63f1b70d88?q=80&w=1200",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+      tech: ["HTML", "Tailwind CSS", "JS Vanila"],
+    },
+    {
+      title: "Nopflix",
+      image:
+        "https://images.unsplash.com/photo-1612831455543-4e63f1b70d88?q=80&w=1200",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+      tech: ["Laravel", "MySQL", "Bootstrap CSS"],
+    },
+    {
+      title: "Sanoebari",
+      image:
+        "https://images.unsplash.com/photo-1612831455543-4e63f1b70d88?q=80&w=1200",
+      description:
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.",
+      tech: ["HTML", "Tailwind CSS", "JS Vanila"],
+    },
+  ];
 
   return (
     <div className="relative bg-black text-white overflow-x-hidden">
@@ -183,7 +237,6 @@ export default function Home() {
           enableShaderEffect={false}
         />
       </div>
-
       {/* ===== NAV ===== */}
       <div className="relative z-100 flex justify-center pt-6">
         <PillNav
@@ -201,95 +254,169 @@ export default function Home() {
           hoveredPillTextColor="#000"
         />
       </div>
+      {/* ===== SECTION 1 (HERO) ===== */}
+      <section className="relative z-10 min-h-screen flex items-center">
+        <div className="max-w-4xl mx-auto px-6 text-center space-y-10">
+          <h1 className="text-[56px] md:text-[72px] font-extrabold">
+            <div className="flex items-center justify-center gap-3 whitespace-nowrap">
+              {/* Rotating text (FORCED SINGLE LINE) */}
+              <span className="inline-flex items-center text-[#C77DFF]">
+                <span className="whitespace-nowrap leading-none flex items-center">
+                  <RotatingText
+                    texts={["HELLO, I'M", "HALO, SAYA", "HOLA, SOY"]}
+                  />
+                </span>
+              </span>
 
-      {/* ===== SECTION 1 ===== */}
-      <section className="relative z-10 h-screen flex items-center">
-        <div className="mx-auto max-w-6xl px-12 grid grid-cols-2 gap-24 items-center">
-          <div className="space-y-6">
-            <h1 className="text-5xl font-semibold flex flex-wrap gap-3">
-              <RotatingText
-                texts={["Hi, My Name", "Halo, Nama Saya", "Hola, Soy"]}
-                mainClassName="text-[#C77DFF]"
-              />
-              <span className="font-bold">Rizki Novian</span>
-            </h1>
-
-            <p className="text-gray-300 max-w-md">
-              Software Engineering Technology graduate from Institut Pertanian
-              Bogor.
-            </p>
-
-            <div className="flex gap-4 pt-4">
-              <button
-                onClick={() => setShowContact((prev) => !prev)}
-                className="rounded-full bg-[#7A1CAC] text-black px-6 py-2 cursor-pointer"
-              >
-                Get in Touch
-              </button>
-
-              <button
-                onClick={handleDownloadCV}
-                className="rounded-full bg-[#7A1CAC] text-black px-6 py-2 cursor-pointer"
-              >
-                My CV
-              </button>
+              {/* Name */}
+              <span className="text-white leading-none">Rizki</span>
             </div>
+          </h1>
 
-            <AnimatePresence>
-              {showContact && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3, ease: "easeOut" }}
-                  className="flex"
-                >
-                  {/* WhatsApp */}
-                  <motion.a
-                    href="https://wa.me/62821100737645"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                  >
-                    <img src={wa} alt="WhatsApp" className="w-10 h-10" />
-                  </motion.a>
+          {/* Subtitle */}
+          <p className="text-gray-300 text-xl max-w-2xl mx-auto">
+            Web Developer focused on crafting modern interfaces, scalable
+            backend systems, and meaningful user experiences.
+          </p>
 
-                  {/* LinkedIn */}
-                  <motion.a
-                    href="https://www.linkedin.com/in/rizki-novian-0211nz"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-12 h-12 rounded-full flex items-center justify-center"
-                  >
-                    <img
-                      src={linkedin}
-                      alt="LinkedIn"
-                      className="w-10 h-10 object-contain"
-                    />
-                  </motion.a>
-                </motion.div>
-              )}
-            </AnimatePresence>
+          {/* CTA (TETAP LAMA) */}
+          <div className="flex justify-center gap-4 pt-6">
+            <button
+              onClick={() => setShowContact((v) => !v)}
+              className="bg-[#7A1CAC] text-black px-8 py-4 rounded-full font-semibold tracking-wide hover:scale-105 transition"
+            >
+              CONTACT ME →
+            </button>
+
+            <button
+              onClick={handleDownloadCV}
+              className="border border-[#7A1CAC] px-8 py-4 rounded-full text-[#C77DFF] font-semibold hover:bg-[#7A1CAC]/10 transition"
+            >
+              MY CV
+            </button>
           </div>
 
-          <div className="flex justify-end">
+          {/* CONTACT ICONS */}
+          <AnimatePresence>
+            {showContact && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="flex justify-center gap-4 pt-4"
+              >
+                <a href="https://wa.me/62821100737645" target="_blank">
+                  <img src={wa} className="w-10 h-10" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/rizki-novian-0211nz"
+                  target="_blank"
+                >
+                  <img src={linkedin} className="w-10 h-10 rounded" />
+                </a>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
+      {/* ===== SECTION 2 ABOUT ===== */}
+      <section className="relative z-10 py-32">
+        <div className="max-w-6xl mx-auto px-12 grid md:grid-cols-2 gap-20 items-center">
+          {/* Text */}
+          <div className="space-y-6">
+            <ScrollFloat textClassName="text-4xl font-extrabold" type="title">
+              About Me
+            </ScrollFloat>
+
+            <p className="text-white leading-relaxed">
+              I am a graduate of IPB University with a GPA of 3.45, majoring in
+              Software Engineering Technology. I have two years of experience as
+              a Web Developer, mainly focusing on Front-End Development, where I
+              build responsive and user-friendly web interfaces. I am also a
+              certified Software Engineer under the national certification
+              issued by Badan Nasional Sertifikasi Profesi (BNSP).
+            </p>
+
+            <p className="text-whitex leading-relaxed">
+              I enjoy turning designs into clean and efficient code,
+              continuously learning new web technologies, and working
+              collaboratively in a team. Outside of coding, I like playing
+              badminton to stay active and maintain a good work–life balance.
+            </p>
+          </div>
+
+          {/* Tilted Card */}
+          <div className="flex justify-center">
             <TiltedCard
-              imageSrc="https://i.scdn.co/image/ab67616d0000b273d9985092cd88bffd97653b58"
-              containerHeight="340px"
-              containerWidth="340px"
+              imageSrc={nop}
+              containerHeight="420px"
+              containerWidth="420px"
             />
           </div>
         </div>
       </section>
+      {/* ===== SECTION EXPERIENCE ===== */}
+      <section className="relative z-10 min-h-screen flex items-center py-20">
+        <div className="max-w-5xl mx-auto px-12 w-full">
+          {/* Title */}
 
-      {/* ===== SECTION 2 ===== */}
+          <ScrollFloat
+            textClassName="text-4xl font-extrabold"
+            align="center"
+            type="title"
+          >
+            Experience
+          </ScrollFloat>
+
+          <AnimatedList
+            items={experienceItems}
+            showGradients={false}
+            displayScrollbar={false}
+            enableArrowNavigation={false}
+            className="!w-full"
+            renderItem={(item, index) => (
+              <div className="grid grid-cols-[56px_1fr] gap-6 items-start">
+                {/* Left: dot + line */}
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 rounded-full bg-[#7A1CAC] flex items-center justify-center text-xs font-bold text-white shrink-0 z-10">
+                    {item.year}
+                  </div>
+                </div>
+
+                {/* Right: card */}
+                <div className="bg-[#0E0E10] border border-white/10 rounded-2xl p-8 mb-12">
+                  <h3 className="text-xl font-semibold text-white">
+                    {item.title}
+                  </h3>
+                  <p className="text-[#C77DFF] text-sm mt-1">
+                    at {item.company}
+                  </p>
+                  <p className="text-gray-300 mt-4 leading-relaxed text-sm">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
+            )}
+          />
+        </div>
+      </section>
+      {/* ===== SECTION 3 ===== */}
       <section className="relative z-10 py-24">
         <div className="max-w-6xl mx-auto px-12 text-center space-y-16">
-          <ScrollFloat>Tools & Stack</ScrollFloat>
+          <ScrollFloat
+            textClassName="text-4xl font-extrabold"
+            align="center"
+            type="title"
+          >
+            Tools & Stack
+          </ScrollFloat>
+          <ScrollFloat
+            textClassName="text-4xl font-extrabold"
+            align="center"
+            type="desc"
+          >
+            Tools and stacks I use while working
+          </ScrollFloat>
 
           <div className="flex flex-wrap justify-evenly gap-y-16">
             <Carousel
@@ -330,127 +457,72 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      {/* ===== SECTION 3 (FIXED SCROLLSTACK) ===== */}
+      {/* ===== SECTION PROJECTS ===== */}
       <section className="relative z-10 py-32">
-        <div className="max-w-7xl mx-auto px-12 flex gap-16 items-start">
-          {/* LEFT (STICKY, NO TRANSFORM) */}
-          <div className="w-[35%] sticky top-32 space-y-4">
-            <ScrollFloat>Projects</ScrollFloat>
-            <p className="text-gray-300">Project yang pernah saya kerjakan.</p>
-          </div>
-
-          {/* RIGHT (SCROLL CONTAINER) */}
-          <div className="w-[65%] h-[70vh] pr-4">
-            <ScrollStack className="no-scrollbar">
-              {projectStackItems.map((item, index) => (
-                <ScrollStackItem
-                  key={item.id}
-                  itemClassName={`
-                    ${stackColors[index % stackColors.length]}
-                    text-white
-                    max-h-[420px]
-                    transform-gpu
-                    will-change-transform
-                    [backface-visibility:hidden]
-                  `}
-                >
-                  <h2 className="text-2xl font-semibold">{item.title}</h2>
-                  {item.description && (
-                    <p className="opacity-80 mt-2">{item.description}</p>
-                  )}
-
-                  {item.type === "video" ? (
-                    <div
-                      onClick={() => setOpenVideo(item.src)}
-                      className="relative mt-6 cursor-pointer rounded-2xl overflow-hidden border border-white/10 group"
-                    >
-                      {/* Thumbnail Video */}
-                      <video
-                        src={item.src}
-                        muted
-                        preload="metadata"
-                        className="w-full h-[220px] object-cover  transition-opacity duration-300 group-hover:opacity-90"
-                      />
-
-                      {/* Overlay gelap */}
-                      <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition" />
-
-                      {/* Play Button */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div
-                          className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center
-                      scale-90 group-hover:scale-100 transition-transform duration-300 shadow-xl"
-                        >
-                          ▶
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex gap-6 pt-6 flex-wrap">
-                      {item.images.map((img, i) => (
-                        <img
-                          key={i}
-                          src={img}
-                          className="h-20 w-20 object-contain"
-                        />
-                      ))}
-                    </div>
-                  )}
-                </ScrollStackItem>
-              ))}
-            </ScrollStack>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SECTION 4 (ABOUT ME) ===== */}
-      <section className="relative z-10 py-32">
-        <div className="max-w-7xl mx-auto px-12 flex gap-16 items-start">
-          {/* LEFT (STICKY) */}
-          <div className="w-[35%] sticky top-32 space-y-4">
-            <ScrollFloat>About Me</ScrollFloat>
-            <p className="text-gray-300 leading-relaxed">
-              Saya adalah lulusan Teknologi Rekayasa Perangkat Lunak dengan
-              ketertarikan pada pengembangan web modern, UI/UX interaktif, dan
-              integrasi sistem. Terbiasa membangun aplikasi end-to-end
-              menggunakan React, Vue, Laravel, dan NestJS, serta fokus pada
-              clean code dan user experience.
-            </p>
-          </div>
-
-          {/* RIGHT (CARD SWAP) */}
-          <div className="w-[65%] h-[70vh] relative">
-            <CardSwap
-              cardDistance={60}
-              verticalDistance={70}
-              delay={2500}
-              pauseOnHover
+        <div className="max-w-7xl mx-auto px-12">
+          {/* Title */}
+          <div className="text-center mb-20">
+            <ScrollFloat
+              textClassName="text-4xl font-extrabold"
+              align="center"
+              type="title"
             >
-              <Card>
-                <h3 className="text-xl font-semibold mb-2">Background</h3>
-                <p className="opacity-80">
-                  Lulusan Institut Pertanian Bogor dengan fokus pada Software
-                  Engineering dan pengembangan aplikasi berbasis web.
-                </p>
-              </Card>
+              My Projects
+            </ScrollFloat>
+            <ScrollFloat
+              textClassName="text-4xl font-extrabold"
+              align="center"
+              type="desc"
+            >
+              A collection of projects I've worked on
+            </ScrollFloat>
+          </div>
 
-              <Card>
-                <h3 className="text-xl font-semibold mb-2">What I Do</h3>
-                <p className="opacity-80">
-                  Membangun frontend interaktif, backend API, serta integrasi
-                  database dengan pendekatan scalable dan maintainable.
-                </p>
-              </Card>
+          {/* Grid */}
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+            {projects.map((project, index) => (
+              <div
+                key={index}
+                className="bg-[#0E0E10] border border-white/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-purple-500/10 transition"
+              >
+                {/* Image */}
+                <div className="h-48 overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover hover:scale-105 transition duration-500"
+                  />
+                </div>
 
-              <Card>
-                <h3 className="text-xl font-semibold mb-2">Mindset</h3>
-                <p className="opacity-80">
-                  Continuous learning, problem solving, dan detail-oriented
-                  dalam setiap proses development.
-                </p>
-              </Card>
-            </CardSwap>
+                {/* Content */}
+                <div className="p-6 space-y-4">
+                  <h3 className="text-xl font-semibold">{project.title}</h3>
+
+                  <p className="text-sm text-gray-400 leading-relaxed">
+                    {project.description}
+                  </p>
+
+                  {/* Tech stack */}
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {project.tech.map((t, i) => (
+                      <span
+                        key={i}
+                        className="px-3 py-1 text-xs rounded-full border border-[#7A1CAC] text-[#C77DFF]"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Button */}
+                  <div className="pt-4">
+                    <button className="w-full bg-[#7A1CAC] text-black py-2 rounded-full font-semibold hover:scale-[1.02] transition">
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
