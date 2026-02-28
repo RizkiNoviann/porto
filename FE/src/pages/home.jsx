@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useExperience } from "../hooks/useExperience";
 
 import TiltedCard from "../components/TiltedCard";
 import ScrollFloat from "../components/ScrollFloat";
@@ -46,8 +47,8 @@ import linkedin from "../assets/linkedin.jpg";
 
 export default function Home() {
   const [showContact, setShowContact] = useState(false);
-
   const [openVideo, setOpenVideo] = useState(null);
+  const { experiences, loading: expLoading } = useExperience();
 
   // ===== CAROUSEL ITEMS =====
   const frontendItems = [
@@ -142,36 +143,13 @@ export default function Home() {
     document.body.removeChild(link);
   };
 
-  const experienceItems = [
-    {
-      year: "2025",
-      title: "IT Development (Oct-Apr)",
-      company: "Airnav Indonesia",
-      description:
-        "I work at AirNav Indonesia in the IT Development division. My role involves developing and maintaining internal applications that are used to support business processes and operational needs within the company. I collaborate with teams to design, build, and improve systems to ensure they are reliable, efficient, and aligned with organizational requirements.",
-    },
-    {
-      year: "2025",
-      title: "Front End Developer (Mar-Aug)",
-      company: "Ijendev.id",
-      description:
-        "I worked at Ijendev.id, a software house specializing in IoT-based website development. During my time there, I developed a web-based inventory and asset borrowing management system using React. I was responsible for building responsive and reusable UI components to support item tracking and borrowing workflows, ensuring a smooth and user-friendly experience. I also collaborated closely with the team to implement features that aligned with business and system requirements.",
-    },
-    {
-      year: "2024",
-      title: "Front End Developer (Feb-Jul)",
-      company: "Dicoding",
-      description:
-        "During my internship, I developed PureLipuran, a tourism website for Penglipuran Village. The website features vacation package booking and user review functionality, built using React and Tailwind CSS. I focused on creating responsive UI components and ensuring a smooth, consistent user experience across various devices.",
-    },
-    {
-      year: "2024",
-      title: "Fullstack Developer",
-      company: "PT Ratu Bio Indonesia",
-      description:
-        "I worked at PT Ratu Bio Indonesia, a manufacturing company specializing in maklon services. In this role, I was involved in developing the company profile website. I built using React and Tailwind CSS as Front End tools and Laravel as Back End tools, implemented payment gateway integration, and developed product review features. I also integrated RESTful APIs to manage dynamic data and support seamless user interactions across the application.",
-    },
-  ];
+  const experienceItems = experiences.map((exp) => ({
+    id: exp.id,
+    year: exp.year,
+    title: `${exp.position} (${exp.period})`,
+    company: exp.company,
+    description: exp.description,
+  }));
 
   const projects = [
     {
@@ -368,36 +346,40 @@ export default function Home() {
             Experience
           </ScrollFloat>
 
-          <AnimatedList
-            items={experienceItems}
-            showGradients={false}
-            displayScrollbar={false}
-            enableArrowNavigation={false}
-            className="!w-full"
-            renderItem={(item, index) => (
-              <div className="grid grid-cols-[56px_1fr] gap-6 items-start">
-                {/* Left: dot + line */}
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-full bg-[#7A1CAC] flex items-center justify-center text-xs font-bold text-white shrink-0 z-10">
-                    {item.year}
+          {expLoading ? (
+            <p className="text-center text-gray-500 py-12">Memuat data...</p>
+          ) : (
+            <AnimatedList
+              items={experienceItems}
+              showGradients={false}
+              displayScrollbar={false}
+              enableArrowNavigation={false}
+              className="!w-full"
+              renderItem={(item, index) => (
+                <div className="grid grid-cols-[56px_1fr] gap-6 items-start">
+                  {/* Left: dot + line */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full bg-[#7A1CAC] flex items-center justify-center text-xs font-bold text-white shrink-0 z-10">
+                      {item.year}
+                    </div>
+                  </div>
+
+                  {/* Right: card */}
+                  <div className="bg-[#0E0E10] border border-white/10 rounded-2xl p-8 mb-12">
+                    <h3 className="text-xl font-semibold text-white">
+                      {item.title}
+                    </h3>
+                    <p className="text-[#C77DFF] text-sm mt-1">
+                      at {item.company}
+                    </p>
+                    <p className="text-gray-300 mt-4 leading-relaxed text-sm">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
-
-                {/* Right: card */}
-                <div className="bg-[#0E0E10] border border-white/10 rounded-2xl p-8 mb-12">
-                  <h3 className="text-xl font-semibold text-white">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#C77DFF] text-sm mt-1">
-                    at {item.company}
-                  </p>
-                  <p className="text-gray-300 mt-4 leading-relaxed text-sm">
-                    {item.description}
-                  </p>
-                </div>
-              </div>
-            )}
-          />
+              )}
+            />
+          )}
         </div>
       </section>
       {/* ===== SECTION 3 ===== */}

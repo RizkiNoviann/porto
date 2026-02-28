@@ -1,11 +1,25 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useExperience } from "../../hooks/useExperience";
 
 const EMPTY_TOOL = { name: "", icon: "" };
-const EMPTY_EXP = { company: "", role: "", period: "", description: "" };
+const EMPTY_EXP = {
+  company: "",
+  position: "",
+  year: "",
+  period: "",
+  description: "",
+};
 
 export default function Admin() {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const {
+    experiences: exps,
+    loading: expLoading,
+    createExperience,
+    updateExperience,
+    deleteExperience,
+  } = useExperience();
 
   // ── Tab ──────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("tools");
@@ -48,51 +62,44 @@ export default function Admin() {
   };
 
   // ── Experience ────────────────────────────────────────
-  const [exps, setExps] = useState(() => {
-    const saved = localStorage.getItem("admin_exps");
-    return saved ? JSON.parse(saved) : [];
-  });
   const [expForm, setExpForm] = useState(EMPTY_EXP);
   const [editExpId, setEditExpId] = useState(null);
   const [showExpForm, setShowExpForm] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem("admin_exps", JSON.stringify(exps));
-  }, [exps]);
-
-  const saveExp = () => {
+  const saveExp = async () => {
     if (!expForm.company.trim()) return;
-    if (editExpId !== null) {
-      setExps(
-        exps.map((e) =>
-          e.id === editExpId ? { ...expForm, id: editExpId } : e,
-        ),
-      );
+    try {
+      if (editExpId !== null) {
+        await updateExperience(editExpId, expForm);
+      } else {
+        await createExperience(expForm);
+      }
+      setExpForm(EMPTY_EXP);
       setEditExpId(null);
-    } else {
-      setExps([...exps, { ...expForm, id: Date.now() }]);
+      setShowExpForm(false);
+    } catch {
+      // handle error
     }
-    setExpForm(EMPTY_EXP);
-    setShowExpForm(false);
   };
 
-  const deleteExp = (id) => setExps(exps.filter((e) => e.id !== id));
+  const deleteExp = async (id) => {
+    try {
+      await deleteExperience(id);
+    } catch {
+      // handle error
+    }
+  };
 
   const startEditExp = (exp) => {
     setExpForm({
       company: exp.company,
-      role: exp.role,
+      position: exp.position,
+      year: exp.year,
       period: exp.period,
       description: exp.description,
     });
     setEditExpId(exp.id);
     setShowExpForm(true);
-  };
-
-  // ── Logout ────────────────────────────────────────────
-  const logout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
   };
 
   // ── Styles ────────────────────────────────────────────
@@ -120,7 +127,7 @@ export default function Admin() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-[#2a2a2a]">
-          {["tools", "experience"].map((tab) => (
+          {["experience", "tools"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -134,6 +141,138 @@ export default function Admin() {
             </button>
           ))}
         </div>
+
+        {/* ── EXPERIENCE TAB ── */}
+        {activeTab === "experience" && (
+          <section>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold">Experience</h2>
+              <button
+                onClick={() => {
+                  setExpForm(EMPTY_EXP);
+                  setEditExpId(null);
+                  setShowExpForm(true);
+                }}
+                className={btnPrimary}
+              >
+                + Tambah Experience
+              </button>
+            </div>
+
+            {/* Form */}
+            {showExpForm && (
+              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6 mb-6 space-y-4">
+                <h3 className="font-medium text-[#7A1CAC]">
+                  {editExpId !== null ? "Edit Experience" : "Tambah Experience"}
+                </h3>
+                <input
+                  className={inputCls}
+                  placeholder="Nama perusahaan (contoh: at Airnav Indonesia)"
+                  value={expForm.company}
+                  onChange={(e) =>
+                    setExpForm({ ...expForm, company: e.target.value })
+                  }
+                />
+                <input
+                  className={inputCls}
+                  placeholder="Posisi (contoh: IT Development)"
+                  value={expForm.position}
+                  onChange={(e) =>
+                    setExpForm({ ...expForm, position: e.target.value })
+                  }
+                />
+                <input
+                  className={inputCls}
+                  placeholder="Tahun (contoh: 2025)"
+                  value={expForm.year}
+                  onChange={(e) =>
+                    setExpForm({ ...expForm, year: e.target.value })
+                  }
+                />
+                <input
+                  className={inputCls}
+                  placeholder="Periode (contoh: Oct - Apr)"
+                  value={expForm.period}
+                  onChange={(e) =>
+                    setExpForm({ ...expForm, period: e.target.value })
+                  }
+                />
+                <textarea
+                  className={`${inputCls} resize-none`}
+                  rows={3}
+                  placeholder="Deskripsi singkat pekerjaan"
+                  value={expForm.description}
+                  onChange={(e) =>
+                    setExpForm({ ...expForm, description: e.target.value })
+                  }
+                />
+                <div className="flex gap-3">
+                  <button onClick={saveExp} className={btnPrimary}>
+                    Simpan
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowExpForm(false);
+                      setEditExpId(null);
+                    }}
+                    className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                  >
+                    Batal
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* List */}
+            {expLoading ? (
+              <p className="text-gray-500 text-center py-12">Memuat data...</p>
+            ) : exps.length === 0 ? (
+              <p className="text-gray-500 text-center py-12">
+                Belum ada experience. Tambahkan experience pertama kamu.
+              </p>
+            ) : (
+              <div className="space-y-4">
+                {exps.map((exp) => (
+                  <div
+                    key={exp.id}
+                    className="bg-[#111111] border border-[#2a2a2a] rounded-xl px-5 py-4"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="font-semibold text-white">
+                          {exp.company}
+                        </p>
+                        <p className="text-[#7A1CAC] text-sm">{exp.position}</p>
+                        <p className="text-gray-500 text-xs mt-1">
+                          {exp.year} · {exp.period}
+                        </p>
+                        {exp.description && (
+                          <p className="text-gray-400 text-sm mt-2">
+                            {exp.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <button
+                          onClick={() => startEditExp(exp)}
+                          className={btnEdit}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteExp(exp.id)}
+                          className={btnDanger}
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         {/* ── TOOLS TAB ── */}
         {activeTab === "tools" && (
@@ -226,128 +365,6 @@ export default function Admin() {
                       >
                         Hapus
                       </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* ── EXPERIENCE TAB ── */}
-        {activeTab === "experience" && (
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Experience</h2>
-              <button
-                onClick={() => {
-                  setExpForm(EMPTY_EXP);
-                  setEditExpId(null);
-                  setShowExpForm(true);
-                }}
-                className={btnPrimary}
-              >
-                + Tambah Experience
-              </button>
-            </div>
-
-            {/* Form */}
-            {showExpForm && (
-              <div className="bg-[#111111] border border-[#2a2a2a] rounded-xl p-6 mb-6 space-y-4">
-                <h3 className="font-medium text-[#7A1CAC]">
-                  {editExpId !== null ? "Edit Experience" : "Tambah Experience"}
-                </h3>
-                <input
-                  className={inputCls}
-                  placeholder="Nama perusahaan"
-                  value={expForm.company}
-                  onChange={(e) =>
-                    setExpForm({ ...expForm, company: e.target.value })
-                  }
-                />
-                <input
-                  className={inputCls}
-                  placeholder="Role / Posisi"
-                  value={expForm.role}
-                  onChange={(e) =>
-                    setExpForm({ ...expForm, role: e.target.value })
-                  }
-                />
-                <input
-                  className={inputCls}
-                  placeholder="Periode (contoh: Jan 2023 - Des 2024)"
-                  value={expForm.period}
-                  onChange={(e) =>
-                    setExpForm({ ...expForm, period: e.target.value })
-                  }
-                />
-                <textarea
-                  className={`${inputCls} resize-none`}
-                  rows={3}
-                  placeholder="Deskripsi singkat pekerjaan"
-                  value={expForm.description}
-                  onChange={(e) =>
-                    setExpForm({ ...expForm, description: e.target.value })
-                  }
-                />
-                <div className="flex gap-3">
-                  <button onClick={saveExp} className={btnPrimary}>
-                    Simpan
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowExpForm(false);
-                      setEditExpId(null);
-                    }}
-                    className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    Batal
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* List */}
-            {exps.length === 0 ? (
-              <p className="text-gray-500 text-center py-12">
-                Belum ada experience. Tambahkan experience pertama kamu.
-              </p>
-            ) : (
-              <div className="space-y-4">
-                {exps.map((exp) => (
-                  <div
-                    key={exp.id}
-                    className="bg-[#111111] border border-[#2a2a2a] rounded-xl px-5 py-4"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-semibold text-white">
-                          {exp.company}
-                        </p>
-                        <p className="text-[#7A1CAC] text-sm">{exp.role}</p>
-                        <p className="text-gray-500 text-xs mt-1">
-                          {exp.period}
-                        </p>
-                        {exp.description && (
-                          <p className="text-gray-400 text-sm mt-2">
-                            {exp.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <button
-                          onClick={() => startEditExp(exp)}
-                          className={btnEdit}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => deleteExp(exp.id)}
-                          className={btnDanger}
-                        >
-                          Hapus
-                        </button>
-                      </div>
                     </div>
                   </div>
                 ))}

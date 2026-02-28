@@ -1,35 +1,14 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const { login, loading, error } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-
-    try {
-      const res = await fetch("http://localhost:3000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Email atau password salah");
-      }
-
-      const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      navigate("/admin");
-    } catch (err) {
-      setError(err.message);
-    }
+    await login(email, password);
   };
 
   return (
@@ -64,9 +43,10 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-[#7A1CAC] text-white py-2 rounded-lg"
+            disabled={loading}
+            className="w-full bg-[#7A1CAC] text-white py-2 rounded-lg disabled:opacity-50"
           >
-            Masuk
+            {loading ? "Memproses..." : "Masuk"}
           </button>
         </form>
       </div>
