@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import Home from "./pages/home";
 import Login from "./pages/auth/login";
 import Admin from "./pages/admin/index";
 import PrivateRoute from "./components/PrivateRoute";
@@ -9,7 +9,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/log1n" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route
           path="/admin"
           element={

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useExperience } from "../hooks/useExperience";
+import { useTool } from "../hooks/useTool";
 
 import TiltedCard from "../components/TiltedCard";
 import ScrollFloat from "../components/ScrollFloat";
@@ -9,33 +10,6 @@ import Ribbons from "../components/Ribbons";
 import Carousel from "../components/Carousel";
 import PillNav from "../components/PillNav";
 import AnimatedList from "../components/AnimatedList";
-
-// ===== LOGOS =====
-// FE
-import reactlogo from "../assets/react.png";
-import vuelogo from "../assets/vue.png";
-import nuxtlogo from "../assets/nuxt.png";
-
-// BE
-import laravellogo from "../assets/laravel.png";
-import nestlogo from "../assets/nest.png";
-
-// Styling
-import tailwindlogo from "../assets/tailwind.png";
-import bosstraplogo from "../assets/bosstrap.png";
-
-// DB
-import phpmyadminlogo from "../assets/phpmyadmin.png";
-import mongodblogo from "../assets/mongodb.png";
-
-// Others
-import pythonlogo from "../assets/python.png";
-import clogo from "../assets/c++.png";
-import figmalogo from "../assets/figma.png";
-import githublogo from "../assets/github.png";
-
-// Video
-import video from "../assets/video.mp4";
 
 //foto
 import nop from "../assets/nop.jpeg";
@@ -49,87 +23,32 @@ export default function Home() {
   const [showContact, setShowContact] = useState(false);
   const [openVideo, setOpenVideo] = useState(null);
   const { experiences, loading: expLoading } = useExperience();
+  const { tools } = useTool();
 
-  // ===== CAROUSEL ITEMS =====
-  const frontendItems = [
-    {
-      id: "react",
-      title: "React",
-      icon: <img src={reactlogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "vue",
-      title: "Vue",
-      icon: <img src={vuelogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "nuxt",
-      title: "Nuxt",
-      icon: <img src={nuxtlogo} className="h-28 w-28 object-contain" />,
-    },
-  ];
+  // ===== CAROUSEL ITEMS dari API (group by category) =====
+  function toCarouselItems(category) {
+    return tools
+      .filter((t) => t.category === category)
+      .map((t) => ({
+        id: t.id,
+        title: t.name,
+        icon: t.image ? (
+          <img
+            src={t.image}
+            className="h-28 w-28 object-contain"
+            alt={t.name}
+          />
+        ) : (
+          <span className="text-4xl font-bold text-[#7A1CAC]">{t.name[0]}</span>
+        ),
+      }));
+  }
 
-  const backendItems = [
-    {
-      id: "laravel",
-      title: "Laravel",
-      icon: <img src={laravellogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "nest",
-      title: "Nest",
-      icon: <img src={nestlogo} className="h-28 w-28 object-contain" />,
-    },
-  ];
-
-  const stylingItems = [
-    {
-      id: "tailwind",
-      title: "Tailwind",
-      icon: <img src={tailwindlogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "bootstrap",
-      title: "Bootstrap",
-      icon: <img src={bosstraplogo} className="h-28 w-28 object-contain" />,
-    },
-  ];
-
-  const dataItems = [
-    {
-      id: "phpmyadmin",
-      title: "PHPMyAdmin",
-      icon: <img src={phpmyadminlogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "mongodb",
-      title: "MongoDB",
-      icon: <img src={mongodblogo} className="h-28 w-28 object-contain" />,
-    },
-  ];
-
-  const othersItems = [
-    {
-      id: "python",
-      title: "Python",
-      icon: <img src={pythonlogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "cpp",
-      title: "C++",
-      icon: <img src={clogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "figma",
-      title: "Figma",
-      icon: <img src={figmalogo} className="h-28 w-28 object-contain" />,
-    },
-    {
-      id: "github",
-      title: "Github",
-      icon: <img src={githublogo} className="h-28 w-28 object-contain" />,
-    },
-  ];
+  const frontendItems = toCarouselItems("Frontend");
+  const backendItems = toCarouselItems("Backend");
+  const stylingItems = toCarouselItems("Styling");
+  const dataItems = toCarouselItems("Database");
+  const othersItems = toCarouselItems("Others");
 
   //download cv
   const handleDownloadCV = () => {
@@ -499,7 +418,7 @@ export default function Home() {
                   {/* Button */}
                   <div className="pt-4">
                     <button className="w-full bg-[#7A1CAC] text-black py-2 rounded-full font-semibold hover:scale-[1.02] transition">
-                      View Details
+                      View Demo
                     </button>
                   </div>
                 </div>

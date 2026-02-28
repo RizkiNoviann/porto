@@ -26,7 +26,7 @@ export function useAuth() {
 
   function logout() {
     localStorage.removeItem("token");
-    navigate("/log1n");
+    navigate("/login");
   }
 
   return { login, logout, loading, error, setError };

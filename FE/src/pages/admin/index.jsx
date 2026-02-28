@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useExperience } from "../../hooks/useExperience";
+import { useTool } from "../../hooks/useTool";
 
-const EMPTY_TOOL = { name: "", icon: "" };
+const EMPTY_TOOL = { name: "", imageFile: null, category: "" };
 const EMPTY_EXP = {
   company: "",
   position: "",
@@ -21,42 +22,40 @@ export default function Admin() {
     deleteExperience,
   } = useExperience();
 
+  const {
+    tools,
+    loading: toolLoading,
+    createTool,
+    updateTool,
+    deleteTool,
+  } = useTool();
+
   // ── Tab ──────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState("tools");
 
   // ── Tools ─────────────────────────────────────────────
-  const [tools, setTools] = useState(() => {
-    const saved = localStorage.getItem("admin_tools");
-    return saved ? JSON.parse(saved) : [];
-  });
   const [toolForm, setToolForm] = useState(EMPTY_TOOL);
   const [editToolId, setEditToolId] = useState(null);
   const [showToolForm, setShowToolForm] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem("admin_tools", JSON.stringify(tools));
-  }, [tools]);
-
-  const saveTool = () => {
+  const saveTool = async () => {
     if (!toolForm.name.trim()) return;
-    if (editToolId !== null) {
-      setTools(
-        tools.map((t) =>
-          t.id === editToolId ? { ...toolForm, id: editToolId } : t,
-        ),
-      );
+    try {
+      if (editToolId !== null) {
+        await updateTool(editToolId, toolForm);
+      } else {
+        await createTool(toolForm);
+      }
+      setToolForm(EMPTY_TOOL);
       setEditToolId(null);
-    } else {
-      setTools([...tools, { ...toolForm, id: Date.now() }]);
+      setShowToolForm(false);
+    } catch {
+      // handle error
     }
-    setToolForm(EMPTY_TOOL);
-    setShowToolForm(false);
   };
 
-  const deleteTool = (id) => setTools(tools.filter((t) => t.id !== id));
-
   const startEditTool = (tool) => {
-    setToolForm({ name: tool.name, icon: tool.icon });
+    setToolForm({ name: tool.name, imageFile: null, category: tool.category });
     setEditToolId(tool.id);
     setShowToolForm(true);
   };
@@ -305,14 +304,43 @@ export default function Admin() {
                     setToolForm({ ...toolForm, name: e.target.value })
                   }
                 />
-                <input
+                <select
                   className={inputCls}
-                  placeholder="URL icon (opsional)"
-                  value={toolForm.icon}
+                  value={toolForm.category}
                   onChange={(e) =>
-                    setToolForm({ ...toolForm, icon: e.target.value })
+                    setToolForm({ ...toolForm, category: e.target.value })
                   }
-                />
+                >
+                  <option value="" disabled>
+                    Pilih kategori
+                  </option>
+                  <option value="Frontend">Frontend</option>
+                  <option value="Backend">Backend</option>
+                  <option value="Styling">Styling</option>
+                  <option value="Database">Database</option>
+                  <option value="Others">Others</option>
+                </select>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">
+                    Gambar / Icon
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#7A1CAC] file:text-white hover:file:bg-[#9B2FD8] cursor-pointer"
+                    onChange={(e) =>
+                      setToolForm({
+                        ...toolForm,
+                        imageFile: e.target.files[0] || null,
+                      })
+                    }
+                  />
+                  {editToolId !== null && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      Biarkan kosong jika tidak ingin mengganti gambar
+                    </p>
+                  )}
+                </div>
                 <div className="flex gap-3">
                   <button onClick={saveTool} className={btnPrimary}>
                     Simpan
@@ -331,7 +359,9 @@ export default function Admin() {
             )}
 
             {/* List */}
-            {tools.length === 0 ? (
+            {toolLoading ? (
+              <p className="text-gray-500 text-center py-12">Memuat data...</p>
+            ) : tools.length === 0 ? (
               <p className="text-gray-500 text-center py-12">
                 Belum ada tool. Tambahkan tool pertama kamu.
               </p>
@@ -343,14 +373,21 @@ export default function Admin() {
                     className="bg-[#111111] border border-[#2a2a2a] rounded-xl px-5 py-4 flex items-center justify-between"
                   >
                     <div className="flex items-center gap-4">
-                      {tool.icon && (
+                      {tool.image && (
                         <img
-                          src={tool.icon}
+                          src={tool.image}
                           alt={tool.name}
                           className="w-8 h-8 object-contain rounded"
                         />
                       )}
-                      <span className="font-medium">{tool.name}</span>
+                      <div>
+                        <span className="font-medium">{tool.name}</span>
+                        {tool.category && (
+                          <span className="ml-2 text-xs text-[#7A1CAC] border border-[#7A1CAC] rounded-full px-2 py-0.5">
+                            {tool.category}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <button
