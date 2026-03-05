@@ -1,4 +1,3 @@
-Rizki Novian\porto\BE\src\main.ts
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
