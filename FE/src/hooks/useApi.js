@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function getAuthHeader(multipart = false) {
   const token = localStorage.getItem("token");
@@ -9,7 +9,6 @@ function getAuthHeader(multipart = false) {
     ? { ...auth, "Content-Type": "multipart/form-data" }
     : auth;
 }
-
 export function useApi() {
   async function get(endpoint) {
     const res = await axios.get(`${BASE_URL}${endpoint}`, {
