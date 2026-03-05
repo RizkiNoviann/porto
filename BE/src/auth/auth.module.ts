@@ -10,7 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
   imports: [
     TypeOrmModule.forFeature([Admin]),
     JwtModule.register({
-      secret: 'SECRET_KEY',
+      secret: process.env.JWT_SECRET || 'SECRET_KEY',
       signOptions: { expiresIn: '1d' },
     }),
   ],
