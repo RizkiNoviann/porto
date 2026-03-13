@@ -10,16 +10,19 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
-  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
+import { mkdirSync } from 'fs';
 import { AuthGuard } from '@nestjs/passport';
 import { ToolService } from './tool.service';
 
+const toolsUploadDir = join(__dirname, '..', '..', 'public', 'uploads', 'tools');
+mkdirSync(toolsUploadDir, { recursive: true });
+
 const storage = diskStorage({
-  destination: './public/uploads/tools',
+  destination: toolsUploadDir,
   filename: (req, file, cb) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, unique + extname(file.originalname));
@@ -46,12 +49,8 @@ export class ToolController {
   create(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: { name: string; category: string },
-    @Req() req: any,
   ) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
-    const imageUrl = file
-      ? `${baseUrl}/uploads/tools/${file.filename}`
-      : undefined;
+    const imageUrl = file ? `/uploads/tools/${file.filename}` : undefined;
     return this.toolService.create({ ...body, image: imageUrl });
   }
 
@@ -62,11 +61,9 @@ export class ToolController {
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() file: Express.Multer.File,
     @Body() body: { name?: string; category?: string },
-    @Req() req: any,
   ) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const dto: any = { ...body };
-    if (file) dto.image = `${baseUrl}/uploads/tools/${file.filename}`;
+    if (file) dto.image = `/uploads/tools/${file.filename}`;
     return this.toolService.update(id, dto);
   }
 

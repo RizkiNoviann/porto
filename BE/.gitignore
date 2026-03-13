@@ -60,3 +60,4 @@ BE/public/uploads/
 *.mov
 *.avi
 *.mkv
+/generated/prisma

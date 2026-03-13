@@ -1,6 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { useApi } from "./useApi";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+function normalizeImageUrl(image) {
+  if (!image) return image;
+  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  return `${API_BASE_URL}${image.startsWith("/") ? image : `/${image}`}`;
+}
+
 export function useTool() {
   const [tools, setTools] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +19,7 @@ export function useTool() {
     setLoading(true);
     try {
       const data = await get("/tools");
-      setTools(data);
+      setTools((data || []).map((tool) => ({ ...tool, image: normalizeImageUrl(tool.image) })));
     } catch (err) {
       setError(err);
     } finally {

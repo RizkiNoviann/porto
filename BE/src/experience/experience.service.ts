@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Experience } from './experience.entity';
+import { PrismaService } from '../prisma/prisma.service';
 
 export class ExperienceDto {
   company: string;
@@ -13,34 +11,29 @@ export class ExperienceDto {
 
 @Injectable()
 export class ExperienceService {
-  constructor(
-    @InjectRepository(Experience)
-    private experienceRepo: Repository<Experience>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Promise<Experience[]> {
-    return this.experienceRepo.find();
+  findAll() {
+    return this.prisma.experience.findMany();
   }
 
-  async findOne(id: number): Promise<Experience> {
-    const exp = await this.experienceRepo.findOne({ where: { id } });
+  async findOne(id: number) {
+    const exp = await this.prisma.experience.findUnique({ where: { id } });
     if (!exp) throw new NotFoundException(`Experience #${id} not found`);
     return exp;
   }
 
-  create(dto: ExperienceDto): Promise<Experience> {
-    const experience = this.experienceRepo.create(dto);
-    return this.experienceRepo.save(experience);
+  create(dto: ExperienceDto) {
+    return this.prisma.experience.create({ data: dto });
   }
 
-  async update(id: number, dto: Partial<ExperienceDto>): Promise<Experience> {
+  async update(id: number, dto: Partial<ExperienceDto>) {
     await this.findOne(id);
-    await this.experienceRepo.update(id, dto);
-    return this.findOne(id);
+    return this.prisma.experience.update({ where: { id }, data: dto });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number) {
     await this.findOne(id);
-    await this.experienceRepo.delete(id);
+    await this.prisma.experience.delete({ where: { id } });
   }
 }

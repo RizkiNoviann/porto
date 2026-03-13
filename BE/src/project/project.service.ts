@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Project } from './project.entity';
+import { PrismaService } from '../prisma/prisma.service';
 
 export class ProjectDto {
   title: string;
@@ -13,34 +11,29 @@ export class ProjectDto {
 
 @Injectable()
 export class ProjectService {
-  constructor(
-    @InjectRepository(Project)
-    private projectRepo: Repository<Project>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Promise<Project[]> {
-    return this.projectRepo.find();
+  findAll() {
+    return this.prisma.project.findMany();
   }
 
-  async findOne(id: number): Promise<Project> {
-    const project = await this.projectRepo.findOne({ where: { id } });
+  async findOne(id: number) {
+    const project = await this.prisma.project.findUnique({ where: { id } });
     if (!project) throw new NotFoundException(`Project #${id} not found`);
     return project;
   }
 
-  create(dto: ProjectDto): Promise<Project> {
-    const project = this.projectRepo.create(dto);
-    return this.projectRepo.save(project);
+  create(dto: ProjectDto) {
+    return this.prisma.project.create({ data: dto });
   }
 
-  async update(id: number, dto: Partial<ProjectDto>): Promise<Project> {
+  async update(id: number, dto: Partial<ProjectDto>) {
     await this.findOne(id);
-    await this.projectRepo.update(id, dto);
-    return this.findOne(id);
+    return this.prisma.project.update({ where: { id }, data: dto });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number) {
     await this.findOne(id);
-    await this.projectRepo.delete(id);
+    await this.prisma.project.delete({ where: { id } });
   }
 }

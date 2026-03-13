@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Tool } from './tool.entity';
+import { PrismaService } from '../prisma/prisma.service';
 
 export class ToolDto {
   name: string;
@@ -11,34 +9,29 @@ export class ToolDto {
 
 @Injectable()
 export class ToolService {
-  constructor(
-    @InjectRepository(Tool)
-    private toolRepo: Repository<Tool>,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Promise<Tool[]> {
-    return this.toolRepo.find();
+  findAll() {
+    return this.prisma.tool.findMany();
   }
 
-  async findOne(id: number): Promise<Tool> {
-    const tool = await this.toolRepo.findOne({ where: { id } });
+  async findOne(id: number) {
+    const tool = await this.prisma.tool.findUnique({ where: { id } });
     if (!tool) throw new NotFoundException(`Tool #${id} not found`);
     return tool;
   }
 
-  create(dto: ToolDto): Promise<Tool> {
-    const tool = this.toolRepo.create(dto);
-    return this.toolRepo.save(tool);
+  create(dto: ToolDto) {
+    return this.prisma.tool.create({ data: dto });
   }
 
-  async update(id: number, dto: Partial<ToolDto>): Promise<Tool> {
+  async update(id: number, dto: Partial<ToolDto>) {
     await this.findOne(id);
-    await this.toolRepo.update(id, dto);
-    return this.findOne(id);
+    return this.prisma.tool.update({ where: { id }, data: dto });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number) {
     await this.findOne(id);
-    await this.toolRepo.delete(id);
+    await this.prisma.tool.delete({ where: { id } });
   }
 }

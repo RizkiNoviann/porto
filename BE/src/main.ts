@@ -2,14 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { AppModule } from './app.module';
-import { DataSource } from 'typeorm';
+import { PrismaService } from './prisma/prisma.service';
 import { seedAdmin } from './seed/admin.seed';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  const dataSource = app.get(DataSource);
-  await seedAdmin(dataSource);
+  const prisma = app.get(PrismaService);
+  await seedAdmin(prisma);
 
   app.useStaticAssets(join(__dirname, '..', 'public'));
 

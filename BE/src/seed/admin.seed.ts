@@ -1,17 +1,13 @@
-import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Admin } from '../auth/admin.entity';
+import { PrismaService } from '../prisma/prisma.service';
 
-export async function seedAdmin(dataSource: DataSource) {
-  const adminRepo = dataSource.getRepository(Admin);
-
-  // Data admin yang ingin di-seed
+export async function seedAdmin(prisma: PrismaService) {
   const admins = [
     { email: 'adminporto@gmail.com', password: 'porto123' },
   ];
 
   for (const adminData of admins) {
-    const existing = await adminRepo.findOne({
+    const existing = await prisma.admin.findUnique({
       where: { email: adminData.email },
     });
 
@@ -21,7 +17,9 @@ export async function seedAdmin(dataSource: DataSource) {
     }
 
     const hashed = await bcrypt.hash(adminData.password, 10);
-    await adminRepo.save({ email: adminData.email, password: hashed });
+    await prisma.admin.create({
+      data: { email: adminData.email, password: hashed },
+    });
     console.log(`Admin ${adminData.email} seeded`);
   }
 }

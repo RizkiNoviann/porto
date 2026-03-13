@@ -1,20 +1,17 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Admin } from './admin.entity';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(Admin)
-    private adminRepo: Repository<Admin>,
+    private prisma: PrismaService,
     private jwtService: JwtService,
   ) {}
 
   async login(email: string, password: string) {
-    const admin = await this.adminRepo.findOne({ where: { email } });
+    const admin = await this.prisma.admin.findUnique({ where: { email } });
 
     if (!admin) throw new UnauthorizedException('Invalid credentials');
 
