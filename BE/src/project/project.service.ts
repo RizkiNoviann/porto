@@ -6,7 +6,7 @@ export class ProjectDto {
   description: string;
   tags: string; // JSON string
   image?: string;
-  video?: string;
+  link?: string;
 }
 
 @Injectable()

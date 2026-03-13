@@ -9,23 +9,17 @@ import {
   ParseIntPipe,
   UseGuards,
   UseInterceptors,
-  UploadedFiles,
-  Req,
+  UploadedFile,
 } from '@nestjs/common';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
+import { mkdirSync } from 'fs';
 import { AuthGuard } from '@nestjs/passport';
 import { ProjectService } from './project.service';
 
-const storage = (folder: string) =>
-  diskStorage({
-    destination: `./public/uploads/${folder}`,
-    filename: (req, file, cb) => {
-      const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      cb(null, unique + extname(file.originalname));
-    },
-  });
+const projectsUploadDir = join(__dirname, '..', '..', 'public', 'uploads', 'projects');
+mkdirSync(projectsUploadDir, { recursive: true });
 
 @Controller('projects')
 export class ProjectController {
@@ -44,69 +38,45 @@ export class ProjectController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'image', maxCount: 1 },
-        { name: 'video', maxCount: 1 },
-      ],
-      {
-        storage: diskStorage({
-          destination: './public/uploads/projects',
-          filename: (req, file, cb) => {
-            const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            cb(null, unique + extname(file.originalname));
-          },
-        }),
-      },
-    ),
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: projectsUploadDir,
+        filename: (req, file, cb) => {
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+    }),
   )
   create(
-    @UploadedFiles()
-    files: { image?: Express.Multer.File[]; video?: Express.Multer.File[] },
-    @Body() body: { title: string; description: string; tags: string },
-    @Req() req: any,
+    @UploadedFile() imageFile: Express.Multer.File,
+    @Body() body: { title: string; description: string; tags: string; link?: string },
   ) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const dto: any = { ...body };
-    if (files?.image?.[0])
-      dto.image = `${baseUrl}/uploads/projects/${files.image[0].filename}`;
-    if (files?.video?.[0])
-      dto.video = `${baseUrl}/uploads/projects/${files.video[0].filename}`;
+    if (imageFile) dto.image = `/uploads/projects/${imageFile.filename}`;
     return this.projectService.create(dto);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
   @UseInterceptors(
-    FileFieldsInterceptor(
-      [
-        { name: 'image', maxCount: 1 },
-        { name: 'video', maxCount: 1 },
-      ],
-      {
-        storage: diskStorage({
-          destination: './public/uploads/projects',
-          filename: (req, file, cb) => {
-            const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-            cb(null, unique + extname(file.originalname));
-          },
-        }),
-      },
-    ),
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: projectsUploadDir,
+        filename: (req, file, cb) => {
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+    }),
   )
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFiles()
-    files: { image?: Express.Multer.File[]; video?: Express.Multer.File[] },
-    @Body() body: { title?: string; description?: string; tags?: string },
-    @Req() req: any,
+    @UploadedFile() imageFile: Express.Multer.File,
+    @Body() body: { title?: string; description?: string; tags?: string; link?: string },
   ) {
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
     const dto: any = { ...body };
-    if (files?.image?.[0])
-      dto.image = `${baseUrl}/uploads/projects/${files.image[0].filename}`;
-    if (files?.video?.[0])
-      dto.video = `${baseUrl}/uploads/projects/${files.video[0].filename}`;
+    if (imageFile) dto.image = `/uploads/projects/${imageFile.filename}`;
     return this.projectService.update(id, dto);
   }
 

@@ -45,6 +45,13 @@ export function useApi() {
     return res.data;
   }
 
+  async function patch(endpoint, data) {
+    const res = await axios.patch(`${BASE_URL}${endpoint}`, data, {
+      headers: getAuthHeader(),
+    });
+    return res.data;
+  }
+
   async function del(endpoint) {
     const res = await axios.delete(`${BASE_URL}${endpoint}`, {
       headers: getAuthHeader(),
@@ -52,6 +59,6 @@ export function useApi() {
     return res.data;
   }
 
-  return { get, post, postForm, put, putForm, del };
+  return { get, post, postForm, put, putForm, patch, del };
 }
 

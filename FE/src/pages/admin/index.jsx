@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useExperience } from "../../hooks/useExperience";
 import { useTool } from "../../hooks/useTool";
@@ -10,7 +10,7 @@ const EMPTY_PROJECT = {
   description: "",
   tags: [""],
   imageFile: null,
-  videoFile: null,
+  videoUrl: "",
 };
 const EMPTY_EXP = {
   company: "",
@@ -28,6 +28,7 @@ export default function Admin() {
     createExperience,
     updateExperience,
     deleteExperience,
+    reorderExperiences,
   } = useExperience();
 
   const {
@@ -80,6 +81,47 @@ export default function Admin() {
   const [expForm, setExpForm] = useState(EMPTY_EXP);
   const [editExpId, setEditExpId] = useState(null);
   const [showExpForm, setShowExpForm] = useState(false);
+
+  // Local ordered list for drag & drop
+  const [orderedExps, setOrderedExps] = useState([]);
+  useEffect(() => {
+    setOrderedExps(exps);
+  }, [exps]);
+
+  // Drag & drop refs
+  const dragIdx = useRef(null);
+  const dragOverIdx = useRef(null);
+
+  const handleDragStart = (i) => {
+    dragIdx.current = i;
+  };
+
+  const handleDragOver = (e, i) => {
+    e.preventDefault();
+    dragOverIdx.current = i;
+  };
+
+  const handleDrop = async () => {
+    const from = dragIdx.current;
+    const to = dragOverIdx.current;
+    if (from === null || to === null || from === to) return;
+
+    const reordered = [...orderedExps];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+
+    setOrderedExps(reordered);
+    dragIdx.current = null;
+    dragOverIdx.current = null;
+
+    const items = reordered.map((exp, idx) => ({ id: exp.id, order: idx }));
+    try {
+      await reorderExperiences(items);
+    } catch {
+      // revert on error
+      setOrderedExps(exps);
+    }
+  };
 
   const saveExp = async () => {
     if (!expForm.company.trim()) return;
@@ -147,7 +189,7 @@ export default function Admin() {
       description: project.description,
       tags: Array.isArray(project.tags) ? project.tags : [""],
       imageFile: null,
-      videoFile: null,
+      videoUrl: project.link || "",
     });
     setEditProjectId(project.id);
     setShowProjectForm(true);
@@ -209,7 +251,12 @@ export default function Admin() {
         {activeTab === "experience" && (
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Experience</h2>
+              <div>
+                <h2 className="text-lg font-semibold">Experience</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Drag item untuk mengatur urutan tampilan
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setExpForm(EMPTY_EXP);
@@ -286,45 +333,72 @@ export default function Admin() {
               </div>
             )}
 
-            {/* List */}
+            {/* List with drag & drop */}
             {expLoading ? (
               <p className="text-gray-500 text-center py-12">Memuat data...</p>
-            ) : exps.length === 0 ? (
+            ) : orderedExps.length === 0 ? (
               <p className="text-gray-500 text-center py-12">
                 Belum ada experience. Tambahkan experience pertama kamu.
               </p>
             ) : (
-              <div className="space-y-4">
-                {exps.map((exp) => (
+              <div className="space-y-3">
+                {orderedExps.map((exp, i) => (
                   <div
                     key={exp.id}
-                    className="bg-[#111111] border border-[#2a2a2a] rounded-xl px-5 py-4"
+                    draggable
+                    onDragStart={() => handleDragStart(i)}
+                    onDragOver={(e) => handleDragOver(e, i)}
+                    onDrop={handleDrop}
+                    className="bg-[#111111] border border-[#2a2a2a] rounded-xl px-5 py-4 cursor-grab active:cursor-grabbing select-none hover:border-[#7A1CAC]/40 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="font-semibold text-white">
-                          {exp.company}
-                        </p>
-                        <p className="text-[#7A1CAC] text-sm">{exp.position}</p>
-                        <p className="text-gray-500 text-xs mt-1">
-                          {exp.year} · {exp.period}
-                        </p>
-                        {exp.description && (
-                          <p className="text-gray-400 text-sm mt-2">
-                            {exp.description}
+                      <div className="flex items-start gap-3">
+                        {/* Drag handle */}
+                        <div className="mt-1 text-gray-600 hover:text-gray-400 transition-colors shrink-0">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M4 8h16M4 16h16"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white">
+                            {exp.company}
                           </p>
-                        )}
+                          <p className="text-[#7A1CAC] text-sm">
+                            {exp.position}
+                          </p>
+                          <p className="text-gray-500 text-xs mt-1">
+                            {exp.year} · {exp.period}
+                          </p>
+                          {exp.description && (
+                            <p className="text-gray-400 text-sm mt-2">
+                              {exp.description}
+                            </p>
+                          )}
+                        </div>
                       </div>
                       <div className="flex gap-2 shrink-0">
                         <button
                           onClick={() => startEditExp(exp)}
                           className={btnEdit}
+                          onMouseDown={(e) => e.stopPropagation()}
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => deleteExp(exp.id)}
                           className={btnDanger}
+                          onMouseDown={(e) => e.stopPropagation()}
                         >
                           Hapus
                         </button>
@@ -567,22 +641,33 @@ export default function Admin() {
                       })
                     }
                   />
+                  {editProjectId !== null && (
+                    <p className="text-xs text-gray-500">
+                      Biarkan kosong jika tidak ingin mengganti gambar
+                    </p>
+                  )}
                 </div>
 
-                {/* Video Upload */}
+                {/* Video Link */}
                 <div className="space-y-1">
-                  <label className="text-sm text-gray-400">Demo Video</label>
+                  <label className="text-sm text-gray-400">
+                    Link Demo Video (YouTube, Drive, dll.)
+                  </label>
                   <input
-                    type="file"
-                    accept="video/*"
-                    className="w-full text-sm text-gray-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-[#7A1CAC] file:text-white cursor-pointer"
+                    className={inputCls}
+                    placeholder="https://youtube.com/watch?v=..."
+                    value={projectForm.videoUrl}
                     onChange={(e) =>
                       setProjectForm({
                         ...projectForm,
-                        videoFile: e.target.files[0] || null,
+                        videoUrl: e.target.value,
                       })
                     }
                   />
+                  <p className="text-xs text-gray-500">
+                    Link akan dibuka di tab baru saat pengunjung klik "View
+                    Demo"
+                  </p>
                 </div>
 
                 <div className="flex gap-3 pt-2">
@@ -640,9 +725,12 @@ export default function Admin() {
                             </span>
                           ))}
                         </div>
-                        {project.video && (
-                          <p className="text-xs text-green-400 mt-1">
-                            ✓ Video tersedia
+                        {project.link && (
+                          <p className="text-xs text-green-400 mt-1 truncate">
+                            ✓ Demo:{" "}
+                            <span className="text-green-300">
+                              {project.link}
+                            </span>
                           </p>
                         )}
                       </div>

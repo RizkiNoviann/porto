@@ -5,7 +5,7 @@ export function useExperience() {
   const [experiences, setExperiences] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { get, post, put, del } = useApi();
+  const { get, post, put, patch, del } = useApi();
 
   const fetchExperiences = useCallback(async () => {
     setLoading(true);
@@ -40,6 +40,11 @@ export function useExperience() {
     await fetchExperiences();
   }
 
+  async function reorderExperiences(items) {
+    await patch("/experience/reorder", { items });
+    await fetchExperiences();
+  }
+
   return {
     experiences,
     loading,
@@ -48,5 +53,6 @@ export function useExperience() {
     createExperience,
     updateExperience,
     deleteExperience,
+    reorderExperiences,
   };
 }

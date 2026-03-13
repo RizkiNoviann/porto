@@ -14,7 +14,7 @@ export class ExperienceService {
   constructor(private prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.experience.findMany();
+    return this.prisma.experience.findMany({ orderBy: { order: 'asc' } });
   }
 
   async findOne(id: number) {
@@ -35,5 +35,13 @@ export class ExperienceService {
   async remove(id: number) {
     await this.findOne(id);
     await this.prisma.experience.delete({ where: { id } });
+  }
+
+  async reorder(items: { id: number; order: number }[]) {
+    await Promise.all(
+      items.map(({ id, order }) =>
+        this.prisma.experience.update({ where: { id }, data: { order } }),
+      ),
+    );
   }
 }

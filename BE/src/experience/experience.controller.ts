@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -42,5 +43,11 @@ export class ExperienceController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.experienceService.remove(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('reorder')
+  reorder(@Body() body: { items: { id: number; order: number }[] }) {
+    return this.experienceService.reorder(body.items);
   }
 }

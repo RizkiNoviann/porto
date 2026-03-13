@@ -23,7 +23,6 @@ import ig from "../assets/ig.png";
 
 export default function Home() {
   const [showContact, setShowContact] = useState(false);
-  const [openVideo, setOpenVideo] = useState(null);
   const { experiences, loading: expLoading } = useExperience();
   const { tools } = useTool();
   const { projects } = useProject();
@@ -141,14 +140,14 @@ export default function Home() {
           <div className="flex flex-wrap justify-center gap-3 pt-4">
             <button
               onClick={() => setShowContact((v) => !v)}
-              className="bg-[#7A1CAC] text-black px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base font-semibold tracking-wide hover:scale-105 transition"
+              className="bg-[#7A1CAC] text-black px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base font-semibold tracking-wide hover:scale-105 transition cursor-pointer"
             >
               CONTACT ME →
             </button>
 
             <button
               onClick={handleDownloadCV}
-              className="border border-[#7A1CAC] px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base text-[#C77DFF] font-semibold hover:bg-[#7A1CAC]/10 transition"
+              className="border border-[#7A1CAC] px-6 py-3 sm:px-8 sm:py-4 rounded-full text-sm sm:text-base text-[#C77DFF] font-semibold hover:bg-[#7A1CAC]/10 transition cursor-pointer"
             >
               MY CV
             </button>
@@ -245,7 +244,7 @@ export default function Home() {
         id="experience"
         className="relative z-10 min-h-screen flex items-center py-12 md:py-20"
       >
-        <div className="max-w-5xl mx-auto px-6 md:px-12 w-full">
+        <div className="max-w-5xl mx-auto px-6 md:px-12 w-full cursor-default">
           {/* Title */}
 
           <ScrollFloat
@@ -409,11 +408,16 @@ export default function Home() {
                   {/* Button */}
                   <div className="pt-4">
                     <button
-                      className="w-full bg-[#7A1CAC] text-black py-2 rounded-full font-semibold hover:scale-[1.02] transition disabled:opacity-40"
+                      className="w-full bg-[#7A1CAC] text-black py-2 rounded-full font-semibold hover:scale-[1.02] transition disabled:opacity-40 cursor-pointer"
                       onClick={() =>
-                        project.video && setOpenVideo(project.video)
+                        project.link &&
+                        window.open(
+                          project.link,
+                          "_blank",
+                          "noopener,noreferrer",
+                        )
                       }
-                      disabled={!project.video}
+                      disabled={!project.link}
                     >
                       View Demo
                     </button>
@@ -559,32 +563,6 @@ export default function Home() {
           />
         </svg>
       </button>
-
-      {/* ===== VIDEO MODAL ===== */}
-      {openVideo && (
-        <div
-          className="fixed inset-0 z-[999] bg-black/70 backdrop-blur flex items-center justify-center"
-          onClick={() => setOpenVideo(null)}
-        >
-          <div
-            className="relative w-full max-w-3xl aspect-video bg-black rounded-xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="absolute top-3 right-3 z-10 bg-black/60 rounded-full w-8 h-8"
-              onClick={() => setOpenVideo(null)}
-            >
-              ✕
-            </button>
-            <video
-              src={openVideo}
-              controls
-              autoPlay
-              className="w-full h-full"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }
