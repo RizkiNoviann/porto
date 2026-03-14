@@ -12,14 +12,12 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { mkdirSync } from 'fs';
+import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { ProjectService } from './project.service';
+import { uploadToBlob } from '../blob.util';
 
-const projectsUploadDir = join(__dirname, '..', '..', 'public', 'uploads', 'projects');
-mkdirSync(projectsUploadDir, { recursive: true });
+const storage = memoryStorage();
 
 @Controller('projects')
 export class ProjectController {
@@ -37,46 +35,26 @@ export class ProjectController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post()
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: projectsUploadDir,
-        filename: (req, file, cb) => {
-          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, unique + extname(file.originalname));
-        },
-      }),
-    }),
-  )
-  create(
+  @UseInterceptors(FileInterceptor('image', { storage }))
+  async create(
     @UploadedFile() imageFile: Express.Multer.File,
     @Body() body: { title: string; description: string; tags: string; link?: string },
   ) {
     const dto: any = { ...body };
-    if (imageFile) dto.image = `/uploads/projects/${imageFile.filename}`;
+    if (imageFile) dto.image = await uploadToBlob(imageFile.buffer, 'projects', imageFile.originalname);
     return this.projectService.create(dto);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Put(':id')
-  @UseInterceptors(
-    FileInterceptor('image', {
-      storage: diskStorage({
-        destination: projectsUploadDir,
-        filename: (req, file, cb) => {
-          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, unique + extname(file.originalname));
-        },
-      }),
-    }),
-  )
+  @UseInterceptors(FileInterceptor('image', { storage }))
   async update(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile() imageFile: Express.Multer.File,
     @Body() body: { title?: string; description?: string; tags?: string; link?: string },
   ) {
     const dto: any = { ...body };
-    if (imageFile) dto.image = `/uploads/projects/${imageFile.filename}`;
+    if (imageFile) dto.image = await uploadToBlob(imageFile.buffer, 'projects', imageFile.originalname);
     return this.projectService.update(id, dto);
   }
 

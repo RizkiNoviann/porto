@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const BASE_URL = import.meta.env.VITE_API_URL || "https://porto-be-iota.vercel.app";
 
 function getAuthHeader(multipart = false) {
   const token = localStorage.getItem("token");

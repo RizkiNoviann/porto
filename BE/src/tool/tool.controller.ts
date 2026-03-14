@@ -12,22 +12,12 @@ import {
   UploadedFile,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { mkdirSync } from 'fs';
+import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { ToolService } from './tool.service';
+import { uploadToBlob } from '../blob.util';
 
-const toolsUploadDir = join(__dirname, '..', '..', 'public', 'uploads', 'tools');
-mkdirSync(toolsUploadDir, { recursive: true });
-
-const storage = diskStorage({
-  destination: toolsUploadDir,
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + extname(file.originalname));
-  },
-});
+const storage = memoryStorage();
 
 @Controller('tools')
 export class ToolController {
@@ -46,11 +36,13 @@ export class ToolController {
   @UseGuards(AuthGuard('jwt'))
   @Post()
   @UseInterceptors(FileInterceptor('image', { storage }))
-  create(
+  async create(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: { name: string; category: string },
   ) {
-    const imageUrl = file ? `/uploads/tools/${file.filename}` : undefined;
+    const imageUrl = file
+      ? await uploadToBlob(file.buffer, 'tools', file.originalname)
+      : undefined;
     return this.toolService.create({ ...body, image: imageUrl });
   }
 
@@ -63,7 +55,7 @@ export class ToolController {
     @Body() body: { name?: string; category?: string },
   ) {
     const dto: any = { ...body };
-    if (file) dto.image = `/uploads/tools/${file.filename}`;
+    if (file) dto.image = await uploadToBlob(file.buffer, 'tools', file.originalname);
     return this.toolService.update(id, dto);
   }
 
