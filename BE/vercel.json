@@ -1,10 +1,5 @@
 {
-  "buildCommand": "npx prisma generate && npx prisma db push && npm run build && npm prune --production",
-  "functions": {
-    "api/index.ts": {
-      "includeFiles": "{dist,node_modules}/**"
-    }
-  },
+  "buildCommand": "npx prisma generate && npx prisma db push && npm run build",
   "rewrites": [
     {
       "source": "/(.*)",
