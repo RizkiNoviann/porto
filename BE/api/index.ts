@@ -1,10 +1,10 @@
 let expressApp: any;
 
 async function bootstrap() {
-  // Dynamic require prevents esbuild from bundling the entire NestJS app
-  const mainPath = '../dist/src/main';
-  // eslint-disable-next-line
-  const { createApp } = require(mainPath);
+  // eval('require') prevents Vercel's esbuild from bundling the NestJS app
+  // eslint-disable-next-line no-eval
+  const dynamicRequire = eval('require');
+  const { createApp } = dynamicRequire('../dist/src/main');
   const app = await createApp();
   return app.getHttpAdapter().getInstance();
 }
