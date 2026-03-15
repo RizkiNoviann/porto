@@ -1,9 +1,15 @@
 {
   "buildCommand": "npx prisma generate && npx prisma db push && npm run build",
-  "rewrites": [
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@3.0.0",
+      "includeFiles": "dist/**"
+    }
+  },
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api/index"
+      "src": "/(.*)",
+      "dest": "/api/index.ts"
     }
   ]
 }
