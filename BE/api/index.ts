@@ -1,19 +1,17 @@
-import serverlessExpress from '@vendia/serverless-express';
-
-// eslint-disable-next-line
-const { createApp } = require('../dist/src/main');
-
-let server;
+let expressApp: any;
 
 async function bootstrap() {
+  // Dynamic require prevents esbuild from bundling the entire NestJS app
+  const mainPath = '../dist/src/main';
+  // eslint-disable-next-line
+  const { createApp } = require(mainPath);
   const app = await createApp();
-  const express = app.getHttpAdapter().getInstance();
-  return serverlessExpress({ app: express });
+  return app.getHttpAdapter().getInstance();
 }
 
 export default async function handler(req: any, res: any) {
-  if (!server) {
-    server = await bootstrap();
+  if (!expressApp) {
+    expressApp = await bootstrap();
   }
-  return server(req, res);
+  return expressApp(req, res);
 }
