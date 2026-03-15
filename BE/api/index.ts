@@ -1,27 +1,12 @@
 import serverlessExpress from '@vendia/serverless-express';
-import { NestFactory } from '@nestjs/core';
 
-// Import pre-compiled output to avoid esbuild decorator metadata issues
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { AppModule } = require('../dist/src/app.module');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { PrismaService } = require('../dist/src/prisma/prisma.service');
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { seedAdmin } = require('../dist/src/seed/admin.seed');
+// eslint-disable-next-line
+const { createApp } = require('../dist/src/main');
 
-let server: ReturnType<typeof serverlessExpress>;
+let server;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  const prisma = app.get(PrismaService);
-  await seedAdmin(prisma);
-
-  app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  });
-
-  await app.init();
+  const app = await createApp();
   const express = app.getHttpAdapter().getInstance();
   return serverlessExpress({ app: express });
 }
