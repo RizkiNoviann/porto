@@ -5,7 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function normalizeImageUrl(image) {
   if (!image) return image;
-  if (image.startsWith("http://") || image.startsWith("https://")) return image;
+  if (image.startsWith("data:") || image.startsWith("http://") || image.startsWith("https://")) return image;
   return `${API_BASE_URL}${image.startsWith("/") ? image : `/${image}`}`;
 }
 
