@@ -15,9 +15,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { AuthGuard } from '@nestjs/passport';
 import { ToolService } from './tool.service';
-import { uploadToBlob } from '../blob.util';
 
 const storage = memoryStorage();
+
+function toBase64DataUrl(file: Express.Multer.File): string {
+  const base64 = file.buffer.toString('base64');
+  return `data:${file.mimetype};base64,${base64}`;
+}
 
 @Controller('tools')
 export class ToolController {
@@ -40,9 +44,7 @@ export class ToolController {
     @UploadedFile() file: Express.Multer.File,
     @Body() body: { name: string; category: string },
   ) {
-    const imageUrl = file
-      ? await uploadToBlob(file.buffer, 'tools', file.originalname)
-      : undefined;
+    const imageUrl = file ? toBase64DataUrl(file) : undefined;
     return this.toolService.create({ ...body, image: imageUrl });
   }
 
@@ -55,7 +57,7 @@ export class ToolController {
     @Body() body: { name?: string; category?: string },
   ) {
     const dto: any = { ...body };
-    if (file) dto.image = await uploadToBlob(file.buffer, 'tools', file.originalname);
+    if (file) dto.image = toBase64DataUrl(file);
     return this.toolService.update(id, dto);
   }
 
