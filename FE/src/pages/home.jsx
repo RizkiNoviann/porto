@@ -363,8 +363,8 @@ export default function Home() {
               enableArrowNavigation={false}
               className="!w-full"
               renderItem={(item, index) => (
-                <div className="grid grid-cols-[56px_1fr] gap-6 items-start">
-                  <div className="flex flex-col items-center">
+                <div className="grid grid-cols-1 md:grid-cols-[56px_1fr] gap-4 md:gap-6 items-start">
+                  <div className="flex flex-col items-start md:items-center">
                     <div className="w-12 h-12 rounded-full bg-[#7A1CAC] flex items-center justify-center text-xs font-bold text-white shrink-0 z-10">
                       {item.year}
                     </div>
@@ -469,7 +469,7 @@ export default function Home() {
             {projects.map((project, index) => (
               <div
                 key={index}
-                className="bg-[#0E0E10] border border-white/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-purple-500/10 transition"
+                className="bg-[#0E0E10] border border-white/10 rounded-2xl overflow-hidden shadow-lg hover:shadow-purple-500/10 transition h-full flex flex-col"
               >
                 <div className="h-48 overflow-hidden">
                   <img
@@ -478,12 +478,12 @@ export default function Home() {
                     className="w-full h-full object-cover hover:scale-105 transition duration-500"
                   />
                 </div>
-                <div className="p-6 space-y-4">
+                <div className="p-6 flex flex-col flex-1">
                   <h3 className="text-xl font-semibold">{project.title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed">
+                  <p className="text-sm text-gray-400 leading-relaxed mt-4 flex-1">
                     {project.description}
                   </p>
-                  <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="flex flex-wrap gap-2 pt-4">
                     {(project.tags || []).map((t, i) => (
                       <span
                         key={i}
@@ -493,7 +493,7 @@ export default function Home() {
                       </span>
                     ))}
                   </div>
-                  <div className="pt-4">
+                  <div className="pt-4 mt-auto">
                     <button
                       className="w-full bg-[#7A1CAC] text-black py-2 rounded-full font-semibold hover:scale-[1.02] transition disabled:opacity-40 cursor-pointer"
                       onClick={() =>
