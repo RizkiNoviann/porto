@@ -7,6 +7,7 @@ export class ProjectDto {
   tags: string; // JSON string
   image?: string;
   link?: string;
+  order?: number;
 }
 
 @Injectable()
@@ -14,7 +15,9 @@ export class ProjectService {
   constructor(private prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.project.findMany();
+    return this.prisma.project.findMany({
+      orderBy: [{ order: 'asc' }, { id: 'asc' }],
+    });
   }
 
   async findOne(id: number) {
@@ -23,8 +26,18 @@ export class ProjectService {
     return project;
   }
 
-  create(dto: ProjectDto) {
-    return this.prisma.project.create({ data: dto });
+  async create(dto: ProjectDto) {
+    const last = await this.prisma.project.findFirst({
+      orderBy: { order: 'desc' },
+      select: { order: true },
+    });
+
+    return this.prisma.project.create({
+      data: {
+        ...dto,
+        order: dto.order ?? (last?.order ?? -1) + 1,
+      },
+    });
   }
 
   async update(id: number, dto: Partial<ProjectDto>) {
@@ -35,5 +48,13 @@ export class ProjectService {
   async remove(id: number) {
     await this.findOne(id);
     await this.prisma.project.delete({ where: { id } });
+  }
+
+  async reorder(items: { id: number; order: number }[]) {
+    await Promise.all(
+      items.map(({ id, order }) =>
+        this.prisma.project.update({ where: { id }, data: { order } }),
+      ),
+    );
   }
 }

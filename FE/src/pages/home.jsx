@@ -146,10 +146,7 @@ export default function Home() {
       </div>
 
       {/* Mobile Nav */}
-      <div className="relative z-[100] md:hidden flex justify-between items-center px-5 pt-5">
-        <span className="text-white font-extrabold text-lg tracking-wide">
-          Rizki<span className="text-[#C77DFF]">.</span>
-        </span>
+      <div className="relative z-[100] md:hidden flex justify-end items-center px-5 pt-5">
         <button
           onClick={() => setMobileMenuOpen((v) => !v)}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-[#7A1CAC]/20 border border-[#7A1CAC]/40 text-[#C77DFF]"

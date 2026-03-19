@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
@@ -66,5 +67,11 @@ export class ProjectController {
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.projectService.remove(id);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('reorder')
+  reorder(@Body() body: { items: { id: number; order: number }[] }) {
+    return this.projectService.reorder(body.items);
   }
 }

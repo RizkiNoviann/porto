@@ -45,6 +45,7 @@ export default function Admin() {
     createProject,
     updateProject,
     deleteProject,
+    reorderProjects,
   } = useProject();
 
   // ── Tab ──────────────────────────────────────────────
@@ -151,6 +152,51 @@ export default function Admin() {
   const [projectForm, setProjectForm] = useState(EMPTY_PROJECT);
   const [editProjectId, setEditProjectId] = useState(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
+
+  // Local ordered list for drag & drop (projects)
+  const [orderedProjects, setOrderedProjects] = useState([]);
+  useEffect(() => {
+    setOrderedProjects(projects);
+  }, [projects]);
+
+  // Drag & drop refs (projects)
+  const projectDragIdx = useRef(null);
+  const projectDragOverIdx = useRef(null);
+
+  const handleProjectDragStart = (i) => {
+    projectDragIdx.current = i;
+  };
+
+  const handleProjectDragOver = (e, i) => {
+    e.preventDefault();
+    projectDragOverIdx.current = i;
+  };
+
+  const handleProjectDrop = async () => {
+    const from = projectDragIdx.current;
+    const to = projectDragOverIdx.current;
+    if (from === null || to === null || from === to) return;
+
+    const reordered = [...orderedProjects];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+
+    setOrderedProjects(reordered);
+    projectDragIdx.current = null;
+    projectDragOverIdx.current = null;
+
+    const items = reordered.map((project, idx) => ({
+      id: project.id,
+      order: idx,
+    }));
+
+    try {
+      await reorderProjects(items);
+    } catch {
+      // revert on error
+      setOrderedProjects(projects);
+    }
+  };
 
   const addTag = () =>
     setProjectForm({ ...projectForm, tags: [...projectForm.tags, ""] });
@@ -552,7 +598,12 @@ export default function Admin() {
         {activeTab === "projects" && (
           <section>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Projects</h2>
+              <div>
+                <h2 className="text-lg font-semibold">Projects</h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Drag item untuk mengatur urutan tampilan
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setProjectForm(EMPTY_PROJECT);
@@ -691,18 +742,38 @@ export default function Admin() {
             {/* List */}
             {projectLoading ? (
               <p className="text-gray-500 text-center py-12">Memuat data...</p>
-            ) : projects.length === 0 ? (
+            ) : orderedProjects.length === 0 ? (
               <p className="text-gray-500 text-center py-12">
                 Belum ada project. Tambahkan project pertama kamu.
               </p>
             ) : (
               <div className="space-y-3">
-                {projects.map((project) => (
+                {orderedProjects.map((project, i) => (
                   <div
                     key={project.id}
+                    draggable
+                    onDragStart={() => handleProjectDragStart(i)}
+                    onDragOver={(e) => handleProjectDragOver(e, i)}
+                    onDrop={handleProjectDrop}
                     className="bg-[#111111] border border-[#2a2a2a] rounded-xl px-5 py-4 flex items-start justify-between gap-4"
                   >
                     <div className="flex items-start gap-4 flex-1 min-w-0">
+                      <div className="mt-1 text-gray-600 hover:text-gray-400 transition-colors shrink-0">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-5 h-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 8h16M4 16h16"
+                          />
+                        </svg>
+                      </div>
                       {project.image && (
                         <img
                           src={project.image}
@@ -739,12 +810,14 @@ export default function Admin() {
                       <button
                         onClick={() => startEditProject(project)}
                         className={btnEdit}
+                        onMouseDown={(e) => e.stopPropagation()}
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => deleteProject(project.id)}
                         className={btnDanger}
+                        onMouseDown={(e) => e.stopPropagation()}
                       >
                         Hapus
                       </button>

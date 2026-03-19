@@ -13,7 +13,7 @@ export function useProject() {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { get, postForm, putForm, del } = useApi();
+  const { get, postForm, putForm, patch, del } = useApi();
 
   const fetchProjects = useCallback(async () => {
     setLoading(true);
@@ -72,5 +72,19 @@ export function useProject() {
     await fetchProjects();
   }
 
-  return { projects, loading, error, fetchProjects, createProject, updateProject, deleteProject };
+  async function reorderProjects(items) {
+    await patch("/projects/reorder", { items });
+    await fetchProjects();
+  }
+
+  return {
+    projects,
+    loading,
+    error,
+    fetchProjects,
+    createProject,
+    updateProject,
+    deleteProject,
+    reorderProjects,
+  };
 }
